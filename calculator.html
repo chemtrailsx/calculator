@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1c1c1c; /* Default dark background */
+            transition: background-color 0.3s ease;
+        }
+
+        .calculator {
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 16px;
+            background: #2a2a2a; /* Default dark calculator background */
+            box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease, border 0.3s ease;
+        }
+
+        input {
+            width: 400px;
+            border: none;
+            padding: 24px;
+            margin: 10px;
+            background: #444; /* Default dark input background */
+            box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1);
+            font-size: 40px;
+            text-align: right;
+            cursor: pointer;
+            color: #ffffff;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        input::placeholder {
+            color: #cccccc;
+        }
+
+        button {
+            border: none;
+            width: 60px;
+            height: 60px;
+            margin: 10px;
+            border-radius: 50%;
+            background: #3a3a3a; /* Default dark button background */
+            color: #ffffff;
+            font-size: 20px;
+            box-shadow: -8px -8px 15px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .equalBtn {
+            background-color: #fb7c14;
+        }
+
+        .operator {
+            color: #0af0d1;
+        }
+
+        .scientific-operators {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #history {
+            color: #ffffff;
+            margin-top: 20px;
+            margin-left: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            border-color: #f0f0f0;
+        }
+
+        #history h3 {
+            margin-bottom: 10px;
+        }
+
+        #historyList {
+            list-style-type: none;
+            color: #e0e0e0; /* Lighter color for history text */
+        }
+
+        .toggle-button {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .toggle-button input {
+            width: 40px;
+            height: 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .toggle-button label {
+            color: #2d1287;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+
+        /* Light Mode Styles */
+        body.light {
+            background-color: #f0f0f0;
+        }
+
+        .calculator.light {
+            background: #ffffff;
+            border: 1px solid #ccc;
+        }
+
+        input.light {
+            background: #e0e0e0;
+            color: #000000;
+        }
+
+        button.light {
+            background: #f2f2f2;
+            color: #000000;
+        }
+
+        button.light:hover {
+            background-color: #dddddd;
+        }
+
+        .equalBtn.light {
+            background-color: #ffcc00;
+        }
+
+        .operator.light {
+            color: #007bff;
+        }
+
+        #historyList.light {
+            color: #000000;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="toggle-button">
+                <label for="modeToggle">Light Mode</label>
+                <input type="checkbox" id="modeToggle" />
+            </div>
+            <input type="text" id="inputBox" placeholder="0" readonly />
+            <div class="scientific-operators">
+                <button class="button operator">AC</button>
+                <button class="button operator">DEL</button>
+                <button class="button operator">%</button>
+                <button class="button operator">/</button>
+                <button class="button operator">sqrt</button>
+            </div>
+            <div>
+                <button class="button">7</button>
+                <button class="button">8</button>
+                <button class="button">9</button>
+                <button class="button operator">*</button>
+                <button class="button operator">x²</button>
+            </div>
+            <div>
+                <button class="button">4</button>
+                <button class="button">5</button>
+                <button class="button">6</button>
+                <button class="button operator">-</button>
+                <button class="button operator">sin</button>
+            </div>
+            <div>
+                <button class="button">1</button>
+                <button class="button">2</button>
+                <button class="button">3</button>
+                <button class="button operator">+</button>
+                <button class="button operator">cos</button>
+            </div>
+            <div>
+                <button class="button">00</button>
+                <button class="button">0</button>
+                <button class="button">.</button>
+                <button class="button equalBtn">=</button>
+                <button class="button operator">tan</button>
+            </div>
+
+            <div id="history">
+                <h3>History</h3>
+                <ul id="historyList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('inputBox');
+        const buttons = document.querySelectorAll('button');
+        const historyList = document.getElementById('historyList');
+        const modeToggle = document.getElementById('modeToggle');
+
+        let string = "";
+        let arr = Array.from(buttons);
+        arr.forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (e.target.innerHTML === '=') {
+                    try {
+                        const previousInput = string; // Store the input expression
+                        string = eval(string);
+                        input.value = string;
+
+                        // Add result to history
+                        const li = document.createElement('li');
+                        li.textContent = `${previousInput} = ${string}`;
+                        historyList.appendChild(li);
+                    } catch {
+                        input.value = "Error";
+                        string = "";
+                    }
+                } else if (e.target.innerHTML === 'AC') {
+                    string = "";
+                    input.value = string;
+                } else if (e.target.innerHTML === 'DEL') {
+                    string = string.substring(0, string.length - 1);
+                    input.value = string;
+                } else if (e.target.innerHTML === 'sqrt') {
+                    string = Math.sqrt(eval(string)).toString();
+                    input.value = string;
+                } else if (e.target.innerHTML === 'x²') {
+                    string = Math.pow(eval(string), 2).toString();
+                    input.value = string;
+                } else if (e.target.innerHTML === 'sin') {
+                    string = Math.sin(eval(string)).toString();
+                    input.value = string;
+                } else if (e.target.innerHTML === 'cos') {
+                    string = Math.cos(eval(string)).toString();
+                    input.value = string;
+                } else if (e.target.innerHTML === 'tan') {
+                    string = Math.tan(eval(string)).toString();
+                    input.value = string;
+                } else {
+                    string += e.target.innerHTML;
+                    input.value = string;
+                }
+            });
+        });
+
+        // Toggle light/dark mode
+        modeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('light');
+            document.querySelector('.calculator').classList.toggle('light');
+            input.classList.toggle('light');
+            buttons.forEach(button => button.classList.toggle('light'));
+            historyList.classList.toggle('light');
+        });
+    </script>
+</body>
+</html>
